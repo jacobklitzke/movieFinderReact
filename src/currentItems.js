@@ -1,50 +1,49 @@
 import React from "react";
 import { Icon, Table } from "semantic-ui-react";
 import MaxPrice from "./maxPrice";
+import axios from "axios";
+import aws4 from "aws4";
 
 const CurrentItems = () => {
-  const initMovieList = [
-    {
-      title: "Blade Runner: The Final Cut",
-      upc: "0883929146697",
-      maxPrice: "8.00",
-      id: "1"
-    },
-    { maxPrice: "8.00", title: "Fool's Gold", upc: "085391139973", id: "2" },
-    { maxPrice: "7.00", title: "La La Land", upc: "0031398258384", id: "3" },
-    {
-      maxPrice: "10.00",
-      title: "Rogue One: A Star Wars Story",
-      upc: "0786936852318",
-      id: "4"
-    },
-    { maxPrice: "6.00", title: "Sahara", upc: "0097361182841", id: "5" },
-    {
-      maxPrice: "7.00",
-      title: "The Edge of Seventeen",
-      upc: "0025192381447",
-      id: "6"
-    }
-  ];
+  const [movies, setMovieList] = React.useState([]);
 
-  const [movies, setMovieList] = React.useState(initMovieList);
+  const getSigningKey = (apiPath, apiMethod) => {
+    //const apiUrl = `https://cors-anywhere.herokuapp.com/https://jadyy0ru89.execute-api.us-east-2.amazonaws.com${apiPath}`;
+
+    let opts = {
+      host: "jadyy0ru89.execute-api.us-east-2.amazonaws.com",
+      region: "us-east-2",
+      service: "execute-api",
+      path: apiPath,
+      method: apiMethod
+    };
+
+    aws4.sign(opts, {
+      accessKeyId: process.env.REACT_APP_ACCESS_KEY,
+      secretAccessKey: process.env.REACT_APP_SECRET_KEY
+    });
+
+    return [apiPath, opts];
+  };
 
   const getTableRows = () => {
-    //let res = await Axios.get(asdfsafd);
-
     let jsx = movies.map(movie => {
       return (
         <Table.Row key={movie.title}>
           <Table.Cell>{movie.title}</Table.Cell>
           <Table.Cell>{movie.upc}</Table.Cell>
           <Table.Cell>
-            <MaxPrice price={movie.maxPrice}></MaxPrice>
+            <MaxPrice
+              price={movie.maxPrice}
+              getSigningKey={getSigningKey}
+              id={movie._id}
+            ></MaxPrice>
           </Table.Cell>
           <Table.Cell>
             <Icon
               name="trash alternate outline"
               link
-              onClick={() => deleteMovie(movie.id)}
+              onClick={() => deleteMovie(movie._id)}
               style={{ marginLeft: 10, position: "relative", top: 1 }}
             ></Icon>
           </Table.Cell>
@@ -56,14 +55,31 @@ const CurrentItems = () => {
   };
 
   const deleteMovie = id => {
-    //API call to delete movie
+    const [apiUrl, opts] = getSigningKey(`/test/deletemovie/${id}`, "DELETE");
+
+    axios.delete(apiUrl, {
+      headers: opts.headers
+    });
+
     let removalIndex = movies.findIndex(movie => {
-      return movie.id === id;
+      return movie._id === id;
     });
 
     movies.splice(removalIndex, 1);
     setMovieList([...movies]);
   };
+
+  React.useEffect(() => {
+    const [apiUrl, opts] = getSigningKey("/test/getmovies", "GET");
+
+    axios
+      .get(apiUrl, {
+        headers: opts.headers
+      })
+      .then(res => {
+        setMovieList(res.data);
+      });
+  }, []);
 
   return (
     <Table celled striped>

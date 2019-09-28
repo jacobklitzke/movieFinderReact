@@ -1,11 +1,18 @@
 import React from "react";
 import { Icon, Input } from "semantic-ui-react";
+import axios from "axios";
 
-const MaxPrice = ({ price }) => {
+const MaxPrice = ({ price, getSigningKey, id }) => {
   const [inputVisible, setInputVisible] = React.useState(false);
   const [maxPrice, setMaxPrice] = React.useState(price);
 
-  //TODO add update maxprice on backend functionality.
+  const updateMaxPrice = () => {
+    const [apiUrl, opts] = getSigningKey(`/test/updatemaxprice/${id}`, "PUT");
+
+    axios.put(apiUrl, {
+      headers: opts.headers
+    });
+  };
 
   return (
     <div className="max-price-edit">
@@ -19,7 +26,10 @@ const MaxPrice = ({ price }) => {
           <Icon
             name="check circle outline"
             link
-            onClick={val => setInputVisible(false)}
+            onClick={val => {
+              setInputVisible(false);
+              updateMaxPrice();
+            }}
           />
         </Input>
       ) : (
