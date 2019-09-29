@@ -7,15 +7,17 @@ import aws4 from "aws4";
 const CurrentItems = () => {
   const [movies, setMovieList] = React.useState([]);
 
-  const getSigningKey = (apiPath, apiMethod) => {
+  const getSigningKey = (apiPath, apiMethod, apiBody) => {
     //const apiUrl = `https://cors-anywhere.herokuapp.com/https://jadyy0ru89.execute-api.us-east-2.amazonaws.com${apiPath}`;
+    apiBody = !apiBody ? "" : apiBody;
 
     let opts = {
       host: "jadyy0ru89.execute-api.us-east-2.amazonaws.com",
       region: "us-east-2",
       service: "execute-api",
       path: apiPath,
-      method: apiMethod
+      method: apiMethod,
+      body: apiBody
     };
 
     aws4.sign(opts, {
