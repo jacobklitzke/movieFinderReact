@@ -1,7 +1,6 @@
 import React from "react";
 import { Header, Button } from "semantic-ui-react";
 import { Link } from "react-router-dom";
-import AddMovieModal from "./addMovieModal";
 
 const AppHeader = () => {
   return (
@@ -14,7 +13,6 @@ const AppHeader = () => {
         <Link to="/findlistings">
           <Button>Find listings</Button>
         </Link>
-        <AddMovieModal />
       </Header.Content>
     </Header>
   );

@@ -2,31 +2,11 @@ import React from "react";
 import { Icon, Table } from "semantic-ui-react";
 import MaxPrice from "./maxPrice";
 import axios from "axios";
-import aws4 from "aws4";
+import AddMovieModal from "./addMovieModal";
+import { getSigningKey } from "./util";
 
 const CurrentItems = () => {
   const [movies, setMovieList] = React.useState([]);
-
-  const getSigningKey = (apiPath, apiMethod, apiBody) => {
-    //const apiUrl = `https://cors-anywhere.herokuapp.com/https://jadyy0ru89.execute-api.us-east-2.amazonaws.com${apiPath}`;
-    apiBody = !apiBody ? "" : apiBody;
-
-    let opts = {
-      host: "jadyy0ru89.execute-api.us-east-2.amazonaws.com",
-      region: "us-east-2",
-      service: "execute-api",
-      path: apiPath,
-      method: apiMethod,
-      body: apiBody
-    };
-
-    aws4.sign(opts, {
-      accessKeyId: process.env.REACT_APP_ACCESS_KEY,
-      secretAccessKey: process.env.REACT_APP_SECRET_KEY
-    });
-
-    return [apiPath, opts];
-  };
 
   const getTableRows = () => {
     let jsx = movies.map(movie => {
@@ -71,6 +51,11 @@ const CurrentItems = () => {
     setMovieList([...movies]);
   };
 
+  const updateMovieList = (id, title, upc, maxPrice) => {
+    movies.push({ _id: id, title: title, upc: upc, maxPrice: maxPrice });
+    setMovieList([...movies]);
+  };
+
   React.useEffect(() => {
     const [apiUrl, opts] = getSigningKey("/test/getmovies", "GET");
 
@@ -87,7 +72,10 @@ const CurrentItems = () => {
     <Table celled striped>
       <Table.Header>
         <Table.Row>
-          <Table.HeaderCell colSpan="4">Movie Search Listings</Table.HeaderCell>
+          <Table.HeaderCell colSpan="3">Movie Search Listings</Table.HeaderCell>
+          <Table.HeaderCell colSpan="1">
+            <AddMovieModal callback={updateMovieList} />
+          </Table.HeaderCell>
         </Table.Row>
         <Table.Row>
           <Table.HeaderCell>Movie Title</Table.HeaderCell>

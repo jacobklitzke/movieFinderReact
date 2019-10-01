@@ -7,14 +7,24 @@ const MaxPrice = ({ price, getSigningKey, id }) => {
   const [maxPrice, setMaxPrice] = React.useState(price);
 
   const updateMaxPrice = () => {
-    const [apiUrl, opts] = getSigningKey(`/test/updatemaxprice/${id}`, "PUT", {
-      maxPrice: maxPrice
-    });
+    const [apiUrl, opts] = getSigningKey(
+      `/test/updatemaxprice/${id}`,
+      "PUT",
+      JSON.stringify({
+        maxPrice: maxPrice
+      }),
+      {
+        "content-type": "application/json"
+      }
+    );
 
-    axios.put(apiUrl, {
-      headers: opts.headers,
-      data: { maxPrice: maxPrice }
-    });
+    axios.put(
+      apiUrl,
+      { maxPrice: maxPrice },
+      {
+        headers: opts.headers
+      }
+    );
   };
 
   return (
